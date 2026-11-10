@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dibya@github ~ live terminal</title>
+<meta name="description" content="Dibyajyoti Pradhan: full-stack developer and visual storyteller. An interactive terminal about me.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0d11;--panel:#10131a;--line:#222836;--ink:#e6edf3;--mute:#7d8590;--teal:#2dd4bf;--amber:#ffb81c;--coral:#ff6b5e;--violet:#a78bfa;--blue:#79c0ff}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;line-height:1.6}
+body{min-height:100vh;padding:28px 16px 40px;background:radial-gradient(900px 400px at 50% -80px,#12262a 0,transparent 70%),var(--bg)}
+.wrap{max-width:860px;margin:0 auto}
+pre.banner{margin:0 0 6px;text-align:center;color:var(--teal);font-size:clamp(6px,1.9vw,15px);line-height:1.05;font-variant-ligatures:none;overflow:hidden;text-shadow:0 0 18px rgba(45,212,191,.35)}
+.tag{text-align:center;color:var(--mute);margin-bottom:22px;font-size:12.5px}
+.win{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.bar{display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:1px solid var(--line);background:#0e1117}
+.bar i{width:11px;height:11px;border-radius:50%;display:block}
+.bar span{flex:1;text-align:center;color:var(--mute);font-size:12px;margin-right:36px}
+#term{padding:18px 20px 22px;min-height:420px;max-height:70vh;overflow-y:auto;scroll-behavior:smooth}
+#term::-webkit-scrollbar{width:8px}#term::-webkit-scrollbar-thumb{background:#262c3a;border-radius:8px}
+.out{white-space:pre-wrap;word-break:break-word}
+.line{animation:in .25s ease-out both}
+@keyframes in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.p{color:var(--teal)}.m{color:var(--mute)}.h{color:#fff;font-weight:600}.a{color:var(--amber)}.c{color:var(--coral)}.v{color:var(--violet)}.b{color:var(--blue)}.t{color:var(--teal)}
+a{color:var(--blue);text-decoration:none;border-bottom:1px dotted #35507a}a:hover{color:#fff;border-color:#fff}
+.cmd{cursor:pointer;color:var(--ink);background:#181d28;border:1px solid var(--line);border-radius:6px;padding:0 7px;margin:0 2px;font:inherit;font-size:12.5px}
+.cmd:hover{border-color:var(--teal);color:var(--teal)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 6px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#0d1016}
+.stat b{display:block;font-size:22px;color:var(--teal);font-weight:600}.stat small{color:var(--mute);font-size:10.5px;letter-spacing:.08em}
+.row{display:flex;gap:10px;align-items:baseline}
+.promptline{display:flex;gap:8px;align-items:center;margin-top:6px}
+#in{flex:1;background:none;border:0;outline:0;color:var(--ink);font:inherit;caret-color:var(--teal);min-width:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:8px 0}
+.card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#0d1016}
+.card h4{margin:0 0 3px;font-size:14px;color:#fff}.card p{margin:0;color:var(--mute);font-size:12.5px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:90px;margin:8px 0 2px}
+.bars div{flex:1;background:#1d2a2c;border-radius:4px 4px 0 0;position:relative;min-height:3px}
+.bars div.top{background:var(--teal)}.bars div span{position:absolute;top:-17px;left:0;right:0;text-align:center;font-size:10.5px;color:var(--mute)}
+.mlabels{display:flex;gap:6px;color:var(--mute);font-size:10.5px}.mlabels span{flex:1;text-align:center}
+.hint{text-align:center;color:var(--mute);margin-top:14px;font-size:12.5px}
+.hint .cmd{font-size:12px}
+.foot{text-align:center;margin-top:18px;font-size:12.5px}.foot a{margin:0 6px}
+.foot small{display:block;color:var(--mute);margin-top:8px}
+#matrix{position:fixed;inset:0;z-index:10;background:#000;display:none}
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}body{font-size:13px}#term{max-height:none}}
+@media(prefers-reduced-motion:reduce){.line{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<pre class="banner" aria-label="Dibyajyoti Pradhan">    ____  __________  _____       ____  ______  __________
+   / __ \/  _/ __ ) \/ /   |     / /\ \/ / __ \/_  __/  _/
+  / / / // // __  |\  / /| |__  / /  \  / / / / / /  / /  
+ / /_/ // // /_/ / / / ___ / /_/ /   / / /_/ / / / _/ /   
+/_____/___/_____/ /_/_/  |_\____/   /_/\____/ /_/ /___/
+    ____  ____  ___    ____  __  _____    _   __
+   / __ \/ __ \/   |  / __ \/ / / /   |  / | / /
+  / /_/ / /_/ / /| | / / / / /_/ / /| | /  |/ / 
+ / ____/ _, _/ ___ |/ /_/ / __  / ___ |/ /|  /  
+/_/   /_/ |_/_/  |_/_____/_/ /_/_/  |_/_/ |_/</pre>
+<div class="tag">Full-stack developer &middot; Visual storyteller &middot; Bhubaneswar, India</div>
+<div class="win" id="win">
+  <div class="bar"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i><span>dibya@github: ~</span></div>
+  <div id="term" role="log" aria-live="polite"></div>
+</div>
+<div class="hint">type <button class="cmd" data-c="help">help</button> to see commands &middot; try <button class="cmd" data-c="projects">projects</button> <button class="cmd" data-c="contributions">contributions</button> or <button class="cmd" data-c="matrix">matrix</button></div>
+<div class="foot">
+  <a href="https://github.com/gravityyyy99">github</a>&middot;<a href="https://linkedin.com/in/dibyajyotipradhan">linkedin</a>&middot;<a href="https://instagram.com/thestoryteller.raw">instagram</a>&middot;<a href="mailto:pradhandj07@gmail.com">email</a>
+  <small>rendered client-side, no build step &middot; data refreshes daily</small>
+</div>
+</div>
+<canvas id="matrix"></canvas>
+<script>
+(function(){
+var term=document.getElementById('term'),USER='dibya@github',DATA={total:140,active_days:27,longest_streak:3,current_streak:0,best_day:{count:18},monthly:[]};
+var LINKS={github:'https://github.com/gravityyyy99',linkedin:'https://linkedin.com/in/dibyajyotipradhan',instagram:'https://instagram.com/thestoryteller.raw',email:'mailto:pradhandj07@gmail.com',discord:'https://discord.gg/gravityyyy99'};
+var hist=[],hi=0,busy=false;
+
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function add(html,cls){var d=document.createElement('div');d.className='line out'+(cls?' '+cls:'');d.innerHTML=html;term.appendChild(d);term.scrollTop=term.scrollHeight;return d}
+function cmdBtn(c){return '<button class="cmd" data-c="'+c+'">'+c+'</button>'}
+function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+async function typeLine(html,delay){var d=add('');if(reduce){d.innerHTML=html;return}var tmp=document.createElement('div');tmp.innerHTML=html;var txt=tmp.textContent;d.textContent='';for(var i=0;i<txt.length;i+=2){d.textContent=txt.slice(0,i+2);await wait(delay||10)}d.innerHTML=html}
+
+var CERTS=[['Namaste JavaScript','NamasteDev','Closures, event loop, async JS'],['React and Redux','KnowledgeGate','Scored 98% | Sep 2026'],['Prompt Engineering with OpenAI','Columbia+','Jul 2026'],['Machine Learning I','Columbia+','Jul 2026'],['Gen AI Engineering Mastermind','Outskill','LLMs, prompt design, AI tools'],['Generative AI Mastermind','Outskill','Applied GenAI workflows'],['Generative AI Fundamentals','Databricks','Exam | Oct 2026'],['AI Skills Passport','EY and Microsoft','General + employability'],['Introduction to IoT','NPTEL, IIT Kharagpur','Jul-Oct 2025 | 58%']];
+var JOURNEY=[['Class 11-12','Prabhujee English School','Physics, Chem, Maths, CS'],['2023','B.Tech CSE, Gandhi Engineering College','Where the debugging began'],['QA','Game Beta Tester: UGW, FAU-G, Indus','Hunting bugs in game builds'],['2023-26','Media Club President, PRATIBIMBA, GEC','Led it 3 years, then passed it on'],['2026','International Photo Win','One photo got featured'],['Oct','Naukri Young Turks','Rank 1224, top 3000 (99.69 percentile)'],['Now','Final-year student','B.Tech CSE, CGPA 8.21. Building and learning']];
+var PROJECTS=[['youtube-watch-party','Watch YouTube in sync with friends: roles, requests, live chat, emoji reactions. React + Express + Socket.IO.','https://github.com/gravityyyy99/youtube-watch-party'],['filmox','The Filmox: a luxury wedding cinematography studio platform. TypeScript.','https://github.com/gravityyyy99/filmox'],['thestoryteller-website','Website for The Storyteller, my photography and cinematography brand.','https://github.com/gravityyyy99/thestoryteller-website'],['course-tube','A YouTube-style home for your own courses with notes and progress tracking.','https://github.com/gravityyyy99/course-tube']];
+var STACK={Languages:'HTML, CSS, Tailwind, JavaScript, Java, Python, TypeScript (still learning)',Frontend:'React',Databases:'MongoDB, MySQL, Firebase (some)','Tools and deploy':'Git, GitHub, Vercel, Netlify, Cloudflare','Creative tools':'Premiere Pro, Photoshop, Canva'};
+
+var C={
+help:function(){add('<span class="h">available commands</span>');
+ [['whoami','who I am'],['about','cat about.js'],['skills','tech stack'],['projects','things I have built'],['contributions','live GitHub numbers'],['certs','certifications'],['journey','git log of my story'],['contact','get in touch'],['clear','clear the screen'],['matrix','you know what this does']].forEach(function(r){add('  '+cmdBtn(r[0])+' <span class="m">'+r[1]+'</span>')})},
+whoami:function(){add('<span class="h">Dibyajyoti Pradhan</span> <span class="m">// aka Dibya, aka gravityyyy99</span>');
+ add('Final-year <span class="t">B.Tech CSE</span> at Gandhi Engineering College (CGPA 8.21), Bhubaneswar, India.');
+ add('<span class="m">Builds:</span> full-stack apps with React, Node, MongoDB, SQL and Firebase.');
+ add('<span class="m">Creates:</span> photography and cinematography. Media Club president for 3 years.');
+ add('<span class="m">Also:</span> game QA beta tester, always chasing semicolons.')},
+about:function(){add('<span class="c">class</span> <span class="a">Dibya</span> <span class="c">extends</span> <span class="a">Engineer</span> {\n  <span class="v">stack</span> = [<span class="b">\'React\'</span>, <span class="b">\'MongoDB\'</span>, <span class="b">\'SQL\'</span>, <span class="b">\'Firebase\'</span>];\n  <span class="v">bugs</span> = [];  <span class="m">// O(n) in the morning, O(n log n) after coffee</span>\n  <span class="c">async</span> <span class="v">build</span>(idea) {\n    <span class="c">while</span> (!idea.shipped) { code(); debug(); coffee(); }  <span class="m">// infinite loop, by design</span>\n    <span class="c">return</span> deploy(idea);  <span class="m">// works on my machine, and on Render</span>\n  }\n  <span class="c">get</span> <span class="v">hobbies</span>() { <span class="c">return</span> [<span class="b">\'photography\'</span>, <span class="b">\'cinematography\'</span>, <span class="b">\'game QA\'</span>]; }\n}')},
+skills:function(){Object.keys(STACK).forEach(function(k){add('<span class="t">'+esc(k).padEnd(17)+'</span>'+esc(STACK[k]))})},
+projects:function(){var g=add('<div class="grid">'+PROJECTS.map(function(p){return '<div class="card"><h4><a href="'+p[2]+'" target="_blank" rel="noopener">'+p[0]+'</a></h4><p>'+esc(p[1])+'</p></div>'}).join('')+'</div>');
+ add('<span class="m">24 repos in total:</span> <a href="https://github.com/gravityyyy99?tab=repositories" target="_blank" rel="noopener">see all of them</a>')},
+contributions:function(){var d=DATA,m=d.monthly||[],mx=Math.max.apply(null,m.map(function(x){return x.total}).concat([1])),top=m.reduce(function(a,x,i){return x.total>(m[a]||{total:-1}).total?i:a},0);
+ var h='<div class="stats"><div class="stat"><b>'+d.total.toLocaleString()+'</b><small>CONTRIBUTIONS</small></div><div class="stat"><b>'+d.current_streak+'</b><small>DAY STREAK</small></div><div class="stat"><b>'+d.longest_streak+'</b><small>BEST STREAK</small></div><div class="stat"><b>'+d.best_day.count+'</b><small>IN ONE DAY</small></div></div>';
+ if(m.length){h+='<div class="bars">'+m.map(function(x,i){return '<div class="'+(i===top?'top':'')+'" style="height:'+Math.max(4,x.total/mx*100)+'%"><span>'+(x.total||'')+'</span></div>'}).join('')+'</div><div class="mlabels">'+m.map(function(x){return '<span>'+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+x.month.slice(5)-1]+'</span>'}).join('')+'</div>'}
+ add(h)},
+certs:function(){CERTS.forEach(function(c){add('<span class="a">&#9632;</span> <span class="h">'+esc(c[0])+'</span> <span class="m">'+esc(c[1])+' - '+esc(c[2])+'</span>')})},
+journey:function(){add('<span class="m">git log --oneline --graph</span>');JOURNEY.forEach(function(j,i){add('<span class="c">*</span> <span class="a">'+esc(j[0]).padEnd(11)+'</span><span class="h">'+esc(j[1])+'</span>\n<span class="c">|</span>             <span class="m">'+esc(j[2])+'</span>')})},
+contact:function(){add('<a href="'+LINKS.linkedin+'" target="_blank" rel="noopener">linkedin</a>  <span class="m">in/dibyajyotipradhan</span>');add('<a href="'+LINKS.email+'">email</a>     <span class="m">pradhandj07@gmail.com</span>');add('<a href="'+LINKS.instagram+'" target="_blank" rel="noopener">instagram</a> <span class="m">@thestoryteller.raw</span>');add('<a href="'+LINKS.discord+'" target="_blank" rel="noopener">discord</a>   <span class="m">gravityyyy99</span>');add('<a href="'+LINKS.github+'" target="_blank" rel="noopener">github</a>    <span class="m">gravityyyy99</span>')},
+clear:function(){term.innerHTML=''},
+matrix:function(){runMatrix()},
+'sudo hire-me':function(){add('<span class="c">[sudo] password for recruiter:</span> ********');add('<span class="t">access granted.</span> <span class="m"># 404: sleep not found</span>')},
+'./hire --me':function(){C['sudo hire-me']()},
+ls:function(){add('about.js  skills/  projects/  certs/  journey.log  contact.txt')},
+date:function(){add(new Date().toString())}
+};
+C.cls=C.clear;
+
+async function run(raw){var cmd=raw.trim();if(!cmd)return;hist.push(cmd);hi=hist.length;
+ add('<span class="p">'+USER+':~$</span> '+esc(cmd));
+ var k=cmd.toLowerCase();if(k==='github'||k==='linkedin'||k==='instagram'||k==='discord'||k==='email'){window.open(LINKS[k],'_blank','noopener');add('<span class="m">opening '+k+'...</span>');return}
+ if(C[k])C[k]();else add('<span class="c">command not found:</span> '+esc(cmd)+' <span class="m">- type</span> '+cmdBtn('help'))}
+
+function prompt(){var d=document.createElement('div');d.className='promptline';d.innerHTML='<span class="p">'+USER+':~$</span><input id="in" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="terminal input">';term.appendChild(d);var i=d.querySelector('input');i.focus({preventScroll:true});
+ i.addEventListener('keydown',async function(e){
+  if(e.key==='Enter'){var v=i.value;d.remove();await run(v);prompt()}
+  else if(e.key==='ArrowUp'){if(hi>0){hi--;i.value=hist[hi];e.preventDefault()}}
+  else if(e.key==='ArrowDown'){if(hi<hist.length-1){hi++;i.value=hist[hi]}else{hi=hist.length;i.value=''}e.preventDefault()}
+  else if(e.key==='Tab'){e.preventDefault();var m=Object.keys(C).filter(function(c){return c.indexOf(i.value.toLowerCase())===0});if(m.length===1)i.value=m[0]}
+  else if(e.key==='l'&&e.ctrlKey){e.preventDefault();C.clear();d.remove();prompt()}
+ });term.scrollTop=term.scrollHeight}
+
+document.addEventListener('click',function(e){var b=e.target.closest('.cmd');if(b){var c=b.dataset.c,cur=document.getElementById('in');if(cur){cur.value=c;cur.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}))}}else if(window.getSelection().toString()===''&&document.getElementById('in'))document.getElementById('in').focus({preventScroll:true})});
+
+function runMatrix(){var cv=document.getElementById('matrix'),x=cv.getContext('2d');cv.style.display='block';cv.width=innerWidth;cv.height=innerHeight;var cols=Math.floor(cv.width/16),y=[];for(var i=0;i<cols;i++)y[i]=Math.random()*-50;
+ var chars='01{}[]()<>;=+*/DIBYA',t=setInterval(draw,45);function draw(){x.fillStyle='rgba(0,0,0,.08)';x.fillRect(0,0,cv.width,cv.height);x.fillStyle='#2dd4bf';x.font='15px monospace';for(var i=0;i<cols;i++){x.fillText(chars[Math.floor(Math.random()*chars.length)],i*16,y[i]*16);if(y[i]*16>cv.height&&Math.random()>.975)y[i]=0;y[i]++}}
+ function stop(){clearInterval(t);cv.style.display='none';removeEventListener('keydown',stop);cv.removeEventListener('click',stop)}setTimeout(function(){addEventListener('keydown',stop);cv.addEventListener('click',stop)},300);setTimeout(stop,6000)}
+
+async function boot(){
+ await typeLine('<span class="t">connected to github.com/gravityyyy99</span>',8);
+ await typeLine('<span class="m">type \'help\' to see available commands</span>',8);
+ var s=add('<div class="stats"><div class="stat"><b id="s1">0</b><small>CONTRIBUTIONS</small></div><div class="stat"><b id="s2">0</b><small>DAY STREAK</small></div><div class="stat"><b id="s3">0</b><small>BEST STREAK</small></div><div class="stat"><b id="s4">0</b><small>IN ONE DAY</small></div></div>');
+ fetch('https://raw.githubusercontent.com/gravityyyy99/Gravityyyy99/main/data/contributions.json',{cache:'no-cache'}).then(function(r){return r.json()}).then(function(j){DATA=j}).catch(function(){}).then(function(){
+  [[ 's1',DATA.total],['s2',DATA.current_streak],['s3',DATA.longest_streak],['s4',DATA.best_day.count]].forEach(function(p){var el=document.getElementById(p[0]),n=p[1],t0=performance.now();(function f(t){var k=Math.min(1,(t-t0)/900);el.textContent=Math.round(n*(1-Math.pow(1-k,3))).toLocaleString();if(k<1)requestAnimationFrame(f)})(t0)})});
+ await wait(500);add('<span class="p">'+USER+':~$</span> whoami');C.whoami();
+ add('<span class="m">type</span> '+cmdBtn('help')+' <span class="m">to see commands</span>');
+ prompt()}
+boot();
+})();
+</script>
+</body>
+</html>
